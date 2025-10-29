@@ -23,7 +23,8 @@ anki-study-analytics/
 │   ├── reorganize_csv.py                # 2️⃣ Reorganize with honest metrics
 │   ├── plot_anki_data.py                # 3️⃣ Create matplotlib plot
 │   ├── create_dashboard.py              # 4️⃣ Dashboard (scrolling version)
-│   └── create_dashboard_tabs.py         # 4️⃣ Dashboard with tabs ⭐ (recommended)
+│   ├── create_dashboard_tabs.py         # 4️⃣ Dashboard with tabs ⭐ (recommended)
+│   └── create_median_pdf.py             # 5️⃣ Professional PDF report (median comparison)
 │
 ├── dashboard/                   # Dashboard modules
 │   ├── config.py                        # Settings and constants
@@ -32,7 +33,8 @@ anki-study-analytics/
 │
 ├── output/                      # Generated files
 │   ├── anki_dashboard.html              # Interactive dashboard
-│   └── anki_review_plot.png             # Static monthly plot
+│   ├── anki_review_plot.png             # Static monthly plot
+│   └── march_2025_median_comparison.pdf # Professional median comparison report
 │
 └── docs/                        # Documentation
     └── data_legend.md                   # Data legend for statisticians
@@ -142,6 +144,24 @@ python3 plot_anki_data.py
 
 ---
 
+#### Option C: Professional PDF Report
+
+```bash
+python3 create_median_pdf.py
+```
+
+**Features:**
+- Professional business-style report
+- Median comparison: March 2025 vs. Baseline Period
+- Activity rate analysis for daily consistency tracking
+- Quality metrics and cheating analysis
+- Benchmark summary for future comparisons
+- Designed as template for November 2025 comparison
+
+**Output:** `output/march_2025_median_comparison.pdf` (~6 KB)
+
+---
+
 ## 🎨 Interactive Dashboard
 
 ### Dashboard Tabs
@@ -201,6 +221,70 @@ Then regenerate:
 ```bash
 python3 create_dashboard_tabs.py
 ```
+
+---
+
+## 📄 Professional PDF Report
+
+### Report Structure
+
+The PDF report (`march_2025_median_comparison.pdf`) provides a professional analysis template for comparing study performance:
+
+**1. Executive Summary**
+- Overview of analysis scope and methodology
+- Explanation of honest metrics formula
+
+**2. Activity Overview**
+- Total days, active days, and activity rate
+- Critical metric for daily consistency tracking
+
+**3. Performance Metrics (Median - Typical Active Day)**
+- Total cards, Learning, Review, Relearn
+- Absolute and relative differences
+- Focus on median values (robust to outliers)
+
+**4. Quality Metrics (Data Integrity)**
+- Clean days (0 cheated cards)
+- Average cheated per day
+- Median cheated (majority indicator)
+
+**5. Key Findings**
+- Intensity analysis
+- Review focus and discipline
+- Retention challenges
+- Data quality improvements
+- Activity pattern comparison
+
+**6. Benchmark Summary**
+- Baseline Period consolidated metrics
+- March 2025 consolidated metrics
+- Reference for November 2025 daily work comparison
+
+### Why Median Instead of Mean?
+
+**Median = Typical Day**
+- Middle value when days are sorted
+- Not affected by extreme outlier days
+- Shows what a "normal" study day looks like
+
+**Mean = Average**
+- Can be skewed by a few very high or low days
+- Less representative of typical performance
+
+**Example:**
+- Days: 10, 20, 30, 40, 1000 cards
+- Mean: 220 cards (misleading)
+- Median: 30 cards (typical day)
+
+### Use Case
+
+This report is designed as a **benchmark template** for:
+- Comparing intermittent study patterns (58.1% activity) vs. daily consistency targets (100% activity)
+- Tracking quality improvements (cheating reduction)
+- Measuring intensity changes (median cards/day)
+- Evaluating retention patterns (relearn rates)
+
+**Future Use:** Compare November 2025 daily work against these benchmarks using the same report structure.
 
 ---
 
@@ -372,6 +456,7 @@ Result:
 - **plotly** - Interactive charts
 - **matplotlib** - Static plots
 - **numpy** - Numerical operations
+- **reportlab** - Professional PDF generation
 
 ### Data Source
 
@@ -430,10 +515,18 @@ python3 create_dashboard_tabs.py
 # Create static plot
 python3 plot_anki_data.py
 
+# Create professional PDF report
+python3 create_median_pdf.py
+
 # View dashboard
 open ../output/anki_dashboard.html  # macOS
 xdg-open ../output/anki_dashboard.html  # Linux
 start ../output/anki_dashboard.html  # Windows
+
+# View PDF report
+open ../output/march_2025_median_comparison.pdf  # macOS
+xdg-open ../output/march_2025_median_comparison.pdf  # Linux
+start ../output/march_2025_median_comparison.pdf  # Windows
 ```
 
 ---
