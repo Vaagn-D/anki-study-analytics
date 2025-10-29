@@ -119,5 +119,54 @@ Number of "cheating" reviews (<1 second)
 
 ---
 
+## MEDIAN VS MEAN ANALYSIS
+
+### Why Use Median?
+
+**Median** represents the "typical day" - the middle value when all active days are sorted:
+- **Robust to outliers:** A few very high or very low days don't skew the result
+- **Better represents reality:** Shows what a normal study day actually looks like
+- **Easier to plan around:** More reliable for setting daily targets
+
+**Mean (Average)** can be misleading for planning:
+- **Sensitive to outliers:** A few extreme days can drastically change the average
+- **Can overestimate typical performance:** High outliers inflate the average
+- **Less useful for benchmarking:** May set unrealistic expectations
+
+### Example
+
+If you have study days with: 10, 20, 30, 40, 1000 cards
+- **Mean:** 220 cards/day (misleading - you never study 220 cards normally!)
+- **Median:** 30 cards/day (realistic - this is your typical day)
+
+### Professional PDF Report
+
+**File:** `output/march_2025_median_comparison.pdf`
+
+A professional analysis report comparing:
+- **Baseline Period:** June 2023 - October 2025 (entire dataset)
+- **March 2025:** Best performance month
+
+**Report Sections:**
+1. Executive Summary
+2. Activity Overview (total days, active days, activity rate)
+3. Performance Metrics (median values for typical day)
+4. Quality Metrics (cheating analysis and data integrity)
+5. Key Findings
+6. Benchmark Summary (consolidated reference)
+
+**Use Case:**
+- Template for benchmarking against future periods
+- Specifically designed for comparing with November 2025 daily work target
+- Focus on activity rate (58.1% intermittent vs. 100% daily consistency)
+
+**Key Differences from Dashboard:**
+- Uses median instead of mean
+- Focuses on typical day rather than monthly aggregates
+- Professional business format
+- Designed for printing and formal comparison
+
+---
+
 **Data Integrity:** ✓ Verified against official Anki add-on statistics
 **Last Updated:** October 29, 2025
