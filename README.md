@@ -212,45 +212,56 @@ python3 create_dashboard_tabs.py
 |------|------|-------------|-------|
 | **Learning** | New cards | First-time study of new flashcards | 🔵 Blue |
 | **Review** | Graduated cards | Cards with spaced intervals (1d, 1w, 1m, etc.) | 🟢 Green |
-| **Total** | Honest work | Learning + Review only (no Relearn) | ⚫ Gray |
 | **Relearn** | Failed cards | Cards failed on Review, being re-studied | 🔴 Red |
+| **Cheated** | Rapid clicking | Cards answered in <1 second (cheating indicator) | ⚪ Removed |
+| **Total** | Honest work | Learning + Review - Cheated (real work only) | ⚫ Gray |
 
 ### Why "Honest Metrics"?
 
-**Problem:** Including Relearn in Total inflates numbers because:
+**Problem 1: Relearn inflates numbers**
 1. You review a card (counted once)
 2. You fail it and relearn it (counted again)
 3. Same card = 2 counts = inflated numbers
 
+**Problem 2: Rapid clicking (cheating)**
+1. Answering cards in <1 second = physically impossible to read and think
+2. Includes days with 90%+ rapid clicking (obvious cheating)
+3. Inflates daily numbers without actual studying
+
 **Solution:**
-- `Total = Learning + Review` (actual unique work)
+- `Total = Learning + Review - Cheated` (actual honest work)
 - `Relearn` = separate difficulty/persistence indicator
+- `Cheated` = quality indicator (removed from Total)
 
 **Example:**
-- **Inflated:** 176 Review + 13 Relearn = 189 Total
-- **Honest:** 176 Total + 13 Relearn (shown separately)
+- **Raw:** 176 Review + 13 Relearn + 1 Cheated = 190
+- **Honest:** 175 Total + 13 Relearn (separate) + 1 Cheated (removed)
 
-**Relearn Rate** = Relearn / Total × 100 = difficulty indicator
+**Validation:** 95% of cheated cards come from 43 "dirty days" (8.2% of active days), with only 0.6 cards/day false positives on clean days.
 
-### Time & Quality Metrics
+### Quality Metrics
 
 | Metric | Description | Interpretation |
 |--------|-------------|----------------|
-| **AvgTime** | Average seconds per card | 20-40s = normal pace, <5s = rushing/cheating, >60s = difficult cards |
-| **MedianTime** | Middle value of review times | More stable than average, not affected by outliers |
-| **FastCount** | Reviews completed in <1 second | 0-10 = acceptable, >20% of total = suspicious |
-| **FastPercent** | Percentage of fast reviews | **<5%** = honest ✅, **5-10%** = rushing ⚠️, **>20%** = cheating 🚫 |
+| **Cheated** | Cards answered in <1 second | 0 = honest day ✅, <5% of (L+R) = acceptable ⚠️, >20% = cheating 🚫 |
+| **Total** | Learning + Review - Cheated | Honest work metric (excludes Relearn and Cheated) |
 
-**Why track time?**
-- Identifies days with rapid clicking (cheating) vs. actual studying
-- FastPercent is the **key quality indicator**
-- Allows filtering for honest-only statistics
-- Example: 430 cards at 0.4s average = 98% fast reviews = obvious cheating
+**Why track cheating?**
+- Identifies days with rapid clicking vs. actual studying
+- <1 second threshold is **physically impossible** for genuine study
+- Cheated column is the **key quality indicator**
+- Already subtracted from Total for honest statistics
 
-**How time is measured:**
-- From showing card front → to pressing answer button
-- Includes time to read question, show answer, and click button
-- Values <1 second are physically impossible for genuine study
+**How cheating is measured:**
+- Time from showing card front → to pressing answer button
+- Threshold: <1000ms (1 second)
+- Includes reading question, thinking, showing answer, and clicking button
+- Values <1 second = impossible for genuine cognitive processing
+
+**Validation results:**
+- 95% of cheated cards come from 43 "dirty days" (8.2% of active days)
+- False positive rate: ~0.6 cards/day on clean days
+- Total honest work: 36,277 cards (vs. 46,409 raw)
 
 ---
 
@@ -333,21 +344,23 @@ Result:
 
 ### Volume & Activity
 - **Period:** June 11, 2023 - October 29, 2025 (872 days)
-- **Total Cards (honest):** 46,409
-  - Learning: 10,997 cards (23.7%)
-  - Review: 35,412 cards (76.3%)
-- **Relearn:** 5,832 cards (12.6% failure rate)
+- **Total Cards (honest):** 36,277
+  - Learning: 10,997 cards (30.3%)
+  - Review: 35,412 cards (97.6%)
+  - Cheated (removed): 10,132 cards (21.8% of raw total)
+- **Relearn:** 5,832 cards (separate difficulty metric)
 - **Active Days:** 526 (60.3%)
 - **Longest Streak:** 51 days
-- **Average:** 53.2 cards/day (all days) | 88.2 cards/day (active days)
+- **Average:** 41.6 cards/day (all days) | 69.4 cards/day (active days)
 
-### Time & Quality Metrics
-- **Average time per card:** 40.3 seconds
-- **Median time per card:** 19.1 seconds
-- **Average fast review rate:** 6.54%
-- **Honest study days (<10% fast):** 501 days (95.2%)
-- **Days with suspected cheating (>20% fast):** 25 days (4.8%)
-- **Estimated cheating cards:** ~10,000+ cards across suspicious days
+### Data Quality
+- **Clean days (≤5% cheating):** 455 days (86.5%)
+- **Medium days (5-20% cheating):** 28 days (5.3%)
+- **Dirty days (>20% cheating):** 43 days (8.2%)
+- **Cheated cards breakdown:**
+  - From dirty days: 9,624 cards (95.1%)
+  - From clean days: 254 cards (2.5%)
+  - False positive rate: ~0.6 cards/day on clean days
 
 ---
 
@@ -370,7 +383,7 @@ Anki stores review history in SQLite database (`collection.anki2`):
   - `time` - Review duration in milliseconds (front display → answer button)
 - **Excluded types:** 3 (Filtered/Cram), 4 (Manual/Unknown)
 - **Timezone:** Moscow Time (MSK, UTC+3) via localtime conversion
-- **Quality threshold:** Reviews <1000ms flagged as "fast" (possible cheating)
+- **Cheating threshold:** Reviews <1000ms flagged as "Cheated" and subtracted from Total
 
 ### Chart Types
 
