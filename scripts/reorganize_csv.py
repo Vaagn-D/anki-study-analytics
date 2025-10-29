@@ -18,9 +18,10 @@ OUTPUT_CSV = os.path.join(PROJECT_ROOT, 'data', 'anki_daily_reviews_honest.csv')
 def reorganize_csv():
     """
     Read the original CSV and create a new one with reorganized columns
-    Original: Date, Learning, Review, Relearn, Total
-    New: Date, Learning, Review, Total, Relearn
+    Original: Date, Learning, Review, Relearn, Total, AvgTime, MedianTime, FastCount, FastPercent
+    New: Date, Learning, Review, Total, Relearn, AvgTime, MedianTime, FastCount, FastPercent
     Where Total = Learning + Review (honest work without relearn)
+    Time metrics are copied as-is from original
     """
 
     print(f"Reading from: {INPUT_CSV}")
@@ -34,7 +35,7 @@ def reorganize_csv():
 
         # Write new header
         header = next(reader)  # Read original header
-        new_header = ['Date', 'Learning', 'Review', 'Total', 'Relearn']
+        new_header = ['Date', 'Learning', 'Review', 'Total', 'Relearn', 'AvgTime', 'MedianTime', 'FastCount', 'FastPercent']
         writer.writerow(new_header)
         print(f"Original header: {header}")
         print(f"New header: {new_header}\n")
@@ -46,12 +47,16 @@ def reorganize_csv():
             review = int(row[2])
             relearn = int(row[3])
             # old_total = int(row[4])  # Not used
+            avg_time = float(row[5])
+            median_time = float(row[6])
+            fast_count = int(row[7])
+            fast_percent = float(row[8])
 
             # Calculate honest total (Learning + Review only)
             honest_total = learning + review
 
-            # Write new row: Date, Learning, Review, Total, Relearn
-            new_row = [date, learning, review, honest_total, relearn]
+            # Write new row: Date, Learning, Review, Total, Relearn, AvgTime, MedianTime, FastCount, FastPercent
+            new_row = [date, learning, review, honest_total, relearn, avg_time, median_time, fast_count, fast_percent]
             writer.writerow(new_row)
             rows_processed += 1
 
@@ -66,14 +71,17 @@ def reorganize_csv():
         for i, row in enumerate(reader):
             if i >= 5:
                 break
-            print(f"{row[0]}: Learning={row[1]}, Review={row[2]}, Total={row[3]} (honest), Relearn={row[4]}")
+            print(f"{row[0]}: L={row[1]:>3} R={row[2]:>3} Total={row[3]:>3} Re={row[4]:>3} | "
+                  f"Avg={row[5]:>5}s Med={row[6]:>5}s Fast={row[7]:>3} ({row[8]:>5}%)")
 
     print("\n--- Last 5 rows ---")
     with open(OUTPUT_CSV, 'r', encoding='utf-8') as f:
         lines = f.readlines()
         for line in lines[-5:]:
             row = line.strip().split(',')
-            print(f"{row[0]}: Learning={row[1]}, Review={row[2]}, Total={row[3]} (honest), Relearn={row[4]}")
+            if len(row) >= 9:
+                print(f"{row[0]}: L={row[1]:>3} R={row[2]:>3} Total={row[3]:>3} Re={row[4]:>3} | "
+                      f"Avg={row[5]:>5}s Med={row[6]:>5}s Fast={row[7]:>3} ({row[8]:>5}%)")
 
     # Calculate statistics
     print("\n--- Statistics ---")

@@ -15,8 +15,8 @@ anki-study-analytics/
 ├── requirements.txt             # Python dependencies
 │
 ├── data/                        # CSV data files
-│   ├── anki_daily_reviews.csv           # Original data (Total = L+R+Relearn)
-│   └── anki_daily_reviews_honest.csv    # Honest metrics (Total = L+R only)
+│   ├── anki_daily_reviews.csv           # Original data + time metrics
+│   └── anki_daily_reviews_honest.csv    # Honest metrics (Total = L+R) + time
 │
 ├── scripts/                     # Data processing scripts
 │   ├── export_anki_reviews.py           # 1️⃣ Extract from collection.anki2
@@ -232,6 +232,26 @@ python3 create_dashboard_tabs.py
 
 **Relearn Rate** = Relearn / Total × 100 = difficulty indicator
 
+### Time & Quality Metrics
+
+| Metric | Description | Interpretation |
+|--------|-------------|----------------|
+| **AvgTime** | Average seconds per card | 20-40s = normal pace, <5s = rushing/cheating, >60s = difficult cards |
+| **MedianTime** | Middle value of review times | More stable than average, not affected by outliers |
+| **FastCount** | Reviews completed in <1 second | 0-10 = acceptable, >20% of total = suspicious |
+| **FastPercent** | Percentage of fast reviews | **<5%** = honest ✅, **5-10%** = rushing ⚠️, **>20%** = cheating 🚫 |
+
+**Why track time?**
+- Identifies days with rapid clicking (cheating) vs. actual studying
+- FastPercent is the **key quality indicator**
+- Allows filtering for honest-only statistics
+- Example: 430 cards at 0.4s average = 98% fast reviews = obvious cheating
+
+**How time is measured:**
+- From showing card front → to pressing answer button
+- Includes time to read question, show answer, and click button
+- Values <1 second are physically impossible for genuine study
+
 ---
 
 ## 🔄 Updating the Analysis
@@ -311,14 +331,23 @@ Result:
 
 ## 📊 Statistics
 
+### Volume & Activity
 - **Period:** June 11, 2023 - October 29, 2025 (872 days)
-- **Total Cards:** 42,930
-- **Active Days:** 524 (60.1%)
-- **Learning:** 10,997 cards (25.6%)
-- **Review:** 35,412 cards (82.5%)
-- **Relearn:** 5,832 cards (13.6% failure rate)
+- **Total Cards (honest):** 46,409
+  - Learning: 10,997 cards (23.7%)
+  - Review: 35,412 cards (76.3%)
+- **Relearn:** 5,832 cards (12.6% failure rate)
+- **Active Days:** 526 (60.3%)
 - **Longest Streak:** 51 days
 - **Average:** 53.2 cards/day (all days) | 88.2 cards/day (active days)
+
+### Time & Quality Metrics
+- **Average time per card:** 40.3 seconds
+- **Median time per card:** 19.1 seconds
+- **Average fast review rate:** 6.54%
+- **Honest study days (<10% fast):** 501 days (95.2%)
+- **Days with suspected cheating (>20% fast):** 25 days (4.8%)
+- **Estimated cheating cards:** ~10,000+ cards across suspicious days
 
 ---
 
@@ -334,9 +363,14 @@ Result:
 ### Data Source
 
 Anki stores review history in SQLite database (`collection.anki2`):
-- Table: `revlog`
-- Types: 0 (Learning), 1 (Review), 2 (Relearn), 3 (Filtered - excluded), 4 (Unknown - excluded)
-- Timezone: Moscow Time (MSK, UTC+3) via localtime conversion
+- **Table:** `revlog`
+- **Columns extracted:**
+  - `id` - Timestamp (milliseconds since epoch)
+  - `type` - Card type: 0 (Learning), 1 (Review), 2 (Relearn)
+  - `time` - Review duration in milliseconds (front display → answer button)
+- **Excluded types:** 3 (Filtered/Cram), 4 (Manual/Unknown)
+- **Timezone:** Moscow Time (MSK, UTC+3) via localtime conversion
+- **Quality threshold:** Reviews <1000ms flagged as "fast" (possible cheating)
 
 ### Chart Types
 
